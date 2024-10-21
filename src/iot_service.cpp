@@ -5,6 +5,9 @@ M1128 iot;
 HardwareSerial *SerialDEBUG = &Serial;
 String addr;
 
+extern String SSID;
+extern String PASS;
+
 void iot_init() {
   addr = String(DEVELOPER_ROOT) + "S";
   addr = addr + String((uint32_t)(ESP.getEfuseMac() >> 32));
@@ -42,12 +45,14 @@ void callbackOnAPConfigTimeout() {
   // iot.restart();
   WiFi.softAPdisconnect(true);
   WiFi.mode(WIFI_STA);
-  WiFi.begin();
+  Serial.printf("connecting back to %s : %s\n", SSID.c_str(), PASS.c_str());
+  WiFi.begin(SSID, PASS);
 }
 
 void callbackOnWiFiConnectTimeout() {
-  // iot.reset();
-  iot.restart();
+  // iot.restart();
+  WiFi.disconnect();
+  WiFi.begin(SSID, PASS);
 }
 
 void initPublish() {
@@ -227,4 +232,11 @@ void iot_publish(const char *topic, const char *payload, bool retained) {
 
 void iot_reset() {
   iot.reset();
+}
+
+bool iot_isConnected() {
+  if (iot.mqtt->connected()) {
+    return true;
+  } else
+    false;
 }

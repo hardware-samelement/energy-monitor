@@ -1,10 +1,6 @@
 
-#include "EmonLib.h" //https://github.com/Savjee/EmonLib-esp32
 #include "EnergyMonitor_global.h"
-#include "file_rw.h"
-#include "iot_service.h"
-#include "lcd_display.h"
-#include "mbCallBack.h"
+
 
 WiFiMulti wifiMulti;
 FileRW fileRW;
@@ -29,6 +25,7 @@ ModbusConfig mbConf;
 QueueHandle_t calcKwh1_queue;
 QueueHandle_t calcKwh2_queue;
 QueueHandle_t calcKwh3_queue;
+QueueHandle_t kwhReset_queue;
 QueueHandle_t display_queue;
 
 TaskHandle_t task1_handle = NULL;
@@ -39,12 +36,14 @@ ReadData dataL3;
 
 int display_page = 0;
 
-String SSID = "";
-String PASS = "";
+String SSID;
+String PASS;
 
 bool singleChannel_mode = false;
 
 SensorCalibration cal;
+
+bool isApMode = false;
 
 void task_readAll(void *pvParameter);
 void task_readVI1(void *pvParameter);
@@ -59,6 +58,9 @@ void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info);
 void task_wifi(void *pvParameter);
 void configInit();
 void configJsonSet();
+void buttonShortPressed();
+void buttonLongPressed();
+void kwhReset(uint8_t ch);
 
 void setup() {
   // put your setup code here, to run once:
@@ -78,17 +80,20 @@ void setup() {
   calcKwh1_queue = xQueueCreate(10, sizeof(float));
   calcKwh2_queue = xQueueCreate(10, sizeof(float));
   calcKwh3_queue = xQueueCreate(10, sizeof(float));
+  kwhReset_queue = xQueueCreate(3, sizeof(uint8_t));
   display_queue = xQueueCreate(10, sizeof(int));
-
-  xTaskCreate(task_readAll, "readVI all line", 1024 * 8, NULL, 5, NULL);
+  // xTaskCreatePinnedToCore();
+  xTaskCreatePinnedToCore(task_readAll, "readVI all line", 1024 * 8, NULL, 5, NULL, 1);
   // xTaskCreate(task_readVI1, "readVI line 1", 1024 * 8, NULL, 5, NULL);
   // xTaskCreate(task_readVI2, "readVI line 2", 1024 * 8, NULL, 5, NULL);
   // xTaskCreate(task_readVI3, "readVI line 3", 1024 * 8, NULL, 5, NULL);
-  xTaskCreate(task_calcKwh, "calculate kwh", 1024 * 4, NULL, 1, NULL);
-  xTaskCreate(task_button, "button", 1024, NULL, 1, NULL);
-  xTaskCreate(task_display, "display lcd", 1024 * 4, NULL, 6, NULL);
-  xTaskCreate(task_modbus, "modbus", 1024 * 3, NULL, 1, NULL);
-  xTaskCreate(task_wifi, "wifi", 1024 * 8, NULL, 3, &task1_handle);
+  xTaskCreatePinnedToCore(task_calcKwh, "calculate kwh", 1024 * 4, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(task_button, "button", 1024 * 3, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(task_display, "display lcd", 1024 * 4, NULL, 6, NULL, 0);
+  xTaskCreatePinnedToCore(task_modbus, "modbus", 1024 * 3, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(task_wifi, "wifi", 1024 * 8, NULL, 3, &task1_handle, 0);
+
+  Serial.printf("connecting back to %s : %s\n", SSID, PASS);
 }
 
 void loop() {
@@ -101,13 +106,6 @@ void task_readAll(void *pvParameter) {
   unsigned long int timer_skip1;
   unsigned long int timer_skip2;
   bool read2_skip = false;
-
-  // emon1.voltage(35, 402.6, 1.7);  // Voltage: input pin, calibration, phase_shift
-  // emon1.current(34, 18.6);        // Current: input pin, calibration.
-  // emon2.voltage(35, 402.6, 1.7);  // Voltage: input pin, calibration, phase_shift
-  // emon2.current(34, 18.6);        // Current: input pin, calibration.
-  // emon3.voltage(35, 402.6, 1.7);  // Voltage: input pin, calibration, phase_shift
-  // emon3.current(34, 18.6);        // Current: input pin, calibration.
 
   emon1.voltage(PIN_V1, cal.cal_v1, 1.7); // Voltage: input pin, calibration, phase_shift
   emon1.current(PIN_CT1, cal.cal_i1);     // Current: input pin, calibration.
@@ -308,6 +306,7 @@ void task_calcKwh(void *pvParameter) {
   float kwh1, mwh1, kwh2, mwh2, kwh3, mwh3;
   unsigned long int lastmillis1, lastmillis2, lastmillis3;
   int tes;
+  uint8_t resetCh;
 
   kwh1 = dataL1.kwh;
   kwh2 = dataL2.kwh;
@@ -326,6 +325,8 @@ void task_calcKwh(void *pvParameter) {
         serializeJson(configJson, config);
         fileRW.writeFile(SPIFFS, "/config.json", config);
         dataL1.kwh = kwh1;
+
+        kwhTotal = dataL1.kwh + dataL2.kwh + dataL3.kwh;
       }
       lastmillis1 = millis();
     }
@@ -341,8 +342,9 @@ void task_calcKwh(void *pvParameter) {
         configJson["kwh2"] = kwh2;
         serializeJson(configJson, config);
         fileRW.writeFile(SPIFFS, "/config.json", config);
-
         dataL2.kwh = kwh2;
+
+        kwhTotal = dataL1.kwh + dataL2.kwh + dataL3.kwh;
       }
       lastmillis2 = millis();
     }
@@ -359,8 +361,29 @@ void task_calcKwh(void *pvParameter) {
         serializeJson(configJson, config);
         fileRW.writeFile(SPIFFS, "/config.json", config);
         dataL3.kwh = kwh3;
+
+        kwhTotal = dataL1.kwh + dataL2.kwh + dataL3.kwh;
       }
       lastmillis3 = millis();
+    }
+
+    if (xQueueReceive(kwhReset_queue, &resetCh, 10)) {
+      switch (resetCh) {
+      case 1:
+        kwh1 = 0;
+        mwh1 = 0;
+        break;
+      case 2:
+        kwh2 = 0;
+        mwh2 = 0;
+        break;
+      case 3:
+        kwh3 = 0;
+        mwh3 = 0;
+        break;
+      }
+
+      kwhTotal = dataL1.kwh + dataL2.kwh + dataL3.kwh;
     }
 
     vTaskDelay(1);
@@ -412,21 +435,16 @@ void task_button(void *pvParameter) {
 
       if (millis() - butt1_timer > 5000 && !butt1_longpressed) {
         butt1_longpressed = true;
-        Serial.println("long pressed");
-        xTaskNotifyGive(task1_handle);
+        buttonLongPressed();
       }
 
-    } else {
+    } else { // button released
       if (butt1_pressed) {
         if (butt1_longpressed) {
           butt1_longpressed = false;
-        } else {
-          display_page += 1;
-          if (display_page > display_info2) {
-            display_page = 0;
-          }
-          xQueueSend(display_queue, &display_page, 0);
-          Serial.println("short pressed");
+        } else { // short press detected
+          buttonShortPressed();
+          vTaskDelay(200);
         }
         vTaskDelay(100);
         butt1_pressed = false;
@@ -442,8 +460,6 @@ void task_display(void *pvParameter) {
   unsigned long int display_timer = 0;
 
   lcd_init();
-  vTaskDelay(4000);
-
   while (1) {
     if (xQueueReceive(display_queue, &displayed, 0)) {
       lcd_show(displayed);
@@ -584,10 +600,10 @@ void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
   Serial.print("WiFi lost connection. Reason: ");
   Serial.println(info.wifi_sta_disconnected.reason);
   vTaskDelay(1000);
-  Serial.println("Trying to Reconnect");
-  String SSID = configJson["wfSsid"];
-  String PASS = configJson["wfPass"];
   if (WiFi.getMode() == WIFI_MODE_STA) {
+    Serial.println("Trying to Reconnect");
+    String SSID = configJson["wfSsid"];
+    String PASS = configJson["wfPass"];
     WiFi.begin(SSID, PASS);
   }
 }
@@ -643,6 +659,7 @@ void task_wifi(void *pvParameter) {
 
     // reset wifi ssid setting
     if (ulTaskNotifyTake(pdTRUE, 0)) {
+      isApMode = true;
       Serial.println("notified");
       xQueueSend(display_queue, &apPage, 0);
       iot_reset();
@@ -680,6 +697,12 @@ void configInit() {
   // serializeJson(configJson, config);
   // fileRW.writeFile(SPIFFS, json_filename, config);
 
+  const char *ssid = configJson["wfSsid"];
+  const char *pass = configJson["wfPass"];
+
+  SSID = String(ssid);
+  PASS = String(pass);
+
   mbConf.baudrate = configJson["mbBaudrate"];
   mbConf.dataLength = configJson["mbDatalength"];
   mbConf.parity = configJson["mbParity"];
@@ -689,6 +712,7 @@ void configInit() {
   dataL1.kwh = configJson["kwh1"];
   dataL2.kwh = configJson["kwh2"];
   dataL3.kwh = configJson["kwh3"];
+  kwhTotal = dataL1.kwh + dataL2.kwh + dataL3.kwh;
 
   cal.cal_v1 = configJson["calV1"];
   cal.cal_v2 = configJson["calV2"];
@@ -696,6 +720,8 @@ void configInit() {
   cal.cal_i1 = configJson["calI1"];
   cal.cal_i2 = configJson["calI2"];
   cal.cal_i3 = configJson["calI3"];
+
+  display_page = configJson["displayPage"];
   // mb.onSetHreg(uint16_t offset)
   delay(100);
 }
@@ -726,4 +752,50 @@ void configJsonSet(void) {
 
   serializeJson(doc, output);
   fileRW.writeFile(SPIFFS, "/config.json", output);
+}
+
+void buttonShortPressed() {
+  Serial.println("short pressed");
+
+  display_page += 1;
+  if (display_page > display_info) {
+    display_page = 0;
+  }
+  xQueueSend(display_queue, &display_page, 0);
+
+  configJson["displayPage"] = display_page;
+  serializeJson(configJson, config);
+  fileRW.writeFile(SPIFFS, "/config.json", config);
+}
+
+void buttonLongPressed() {
+  Serial.println("long pressed");
+  if (display_page == display_info) {
+    xTaskNotifyGive(task1_handle); // notify to reset wifi ssid
+  } else if (display_page == display_ch1) {
+    dataL1.kwh = 0;
+    kwhReset(1);
+
+    configJson["kwh1"] = dataL1.kwh;
+    serializeJson(configJson, config);
+    fileRW.writeFile(SPIFFS, "/config.json", config);
+  } else if (display_page == display_ch2) {
+    dataL2.kwh = 0;
+    kwhReset(2);
+
+    configJson["kwh2"] = dataL2.kwh;
+    serializeJson(configJson, config);
+    fileRW.writeFile(SPIFFS, "/config.json", config);
+  } else if (display_page == display_ch3) {
+    dataL3.kwh = 0;
+    kwhReset(3);
+
+    configJson["kwh3"] = dataL3.kwh;
+    serializeJson(configJson, config);
+    fileRW.writeFile(SPIFFS, "/config.json", config);
+  }
+}
+
+void kwhReset(uint8_t ch) {
+  xQueueSend(kwhReset_queue, &ch, 0);
 }

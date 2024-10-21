@@ -10,16 +10,17 @@ enum {
   display_apparent,
   display_energy,
   display_pf,
+  display_ch1,
+  display_ch2,
+  display_ch3,
   display_info,
-  display_info2,
-  display_apmode,
-  display_1ch
+  display_apmode
 
-}display_page_t;
-
+} display_page_t;
 
 void lcd_init();
 void lcd_show(int page);
 void clearValue(void);
+void clearValueCh(void);
 
 #endif
