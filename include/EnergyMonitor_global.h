@@ -7,7 +7,6 @@
 #include "iot_service.h"
 #include "lcd_display.h"
 #include "mbCallBack.h"
-// #include <Adafruit_SSD1306.h>
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <ModbusRTU.h>
@@ -29,14 +28,6 @@
 #define PIN_BTN1 19
 #define PIN_BTN2 18
 
-// #define PIN_ADC_V1 35
-// #define PIN_ADC_V2 35
-// #define PIN_ADC_V3 35
-// #define PIN_ADC_I1 34
-// #define PIN_ADC_I2 34
-// #define PIN_ADC_I3 34
-// #define PIN_BUTT2
-
 typedef struct {
   float realPower, apparentPower, powerFactor, Vrms, Irms, kwh;
 } ReadData;
@@ -48,5 +39,16 @@ typedef struct {
 typedef struct {
   float cal_v1, cal_v2, cal_v3, cal_i1, cal_i2, cal_i3;
 } SensorCalibration;
+
+enum calibrationId {
+  V1,
+  V2,
+  V3,
+  I1,
+  I2,
+  I3
+};
+
+void calibration(calibrationId id, float value);
 
 #endif

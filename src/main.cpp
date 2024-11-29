@@ -1,7 +1,6 @@
 
 #include "EnergyMonitor_global.h"
 
-
 WiFiMulti wifiMulti;
 FileRW fileRW;
 // Adafruit_SSD1306 display(128, 32, &Wire, -1);
@@ -43,8 +42,6 @@ bool singleChannel_mode = false;
 
 SensorCalibration cal;
 
-bool isApMode = false;
-
 void task_readAll(void *pvParameter);
 void task_readVI1(void *pvParameter);
 void task_readVI2(void *pvParameter);
@@ -82,7 +79,6 @@ void setup() {
   calcKwh3_queue = xQueueCreate(10, sizeof(float));
   kwhReset_queue = xQueueCreate(3, sizeof(uint8_t));
   display_queue = xQueueCreate(10, sizeof(int));
-  // xTaskCreatePinnedToCore();
   xTaskCreatePinnedToCore(task_readAll, "readVI all line", 1024 * 8, NULL, 5, NULL, 1);
   // xTaskCreate(task_readVI1, "readVI line 1", 1024 * 8, NULL, 5, NULL);
   // xTaskCreate(task_readVI2, "readVI line 2", 1024 * 8, NULL, 5, NULL);
@@ -315,6 +311,8 @@ void task_calcKwh(void *pvParameter) {
   while (1) {
     if (xQueueReceive(calcKwh1_queue, &realPower, 10)) {
       mwh1 = mwh1 + realPower * (millis() - lastmillis1) / 3600.0;
+      // Serial.print("calc kwh1 : ");
+      // Serial.println(mwh1);
       if (mwh1 / 10000.0 >= 1) {
         kwh1 = kwh1 + (mwh1 / 1000000.0);
         mwh1 = fmod(mwh1, 10000);
@@ -659,7 +657,6 @@ void task_wifi(void *pvParameter) {
 
     // reset wifi ssid setting
     if (ulTaskNotifyTake(pdTRUE, 0)) {
-      isApMode = true;
       Serial.println("notified");
       xQueueSend(display_queue, &apPage, 0);
       iot_reset();
@@ -798,4 +795,63 @@ void buttonLongPressed() {
 
 void kwhReset(uint8_t ch) {
   xQueueSend(kwhReset_queue, &ch, 0);
+}
+
+void calibration(calibrationId id, float value) {
+  Serial.printf("id = %d, value : %f /n", id, value);
+  if (id == V1) {
+    float newCal = cal.cal_v1 * (value / emon1.Vrms);
+    cal.cal_v1 = newCal;
+    configJson["calV1"] = newCal;
+    serializeJson(configJson, config);
+    fileRW.writeFile(SPIFFS, "/config.json", config);
+
+    emon1.voltage(PIN_V1, newCal, 1.7); // Voltage: input pin, calibration, phase_shift
+    Serial.println(newCal);
+  } else if (id == V2) {
+    float newCal = cal.cal_v2 * (value / emon2.Vrms);
+    cal.cal_v2 = newCal;
+    configJson["calV2"] = newCal;
+    serializeJson(configJson, config);
+    fileRW.writeFile(SPIFFS, "/config.json", config);
+
+    emon2.voltage(PIN_V2, newCal, 1.7); // Voltage: input pin, calibration, phase_shift
+    Serial.println(newCal);
+  } else if (id == V3) {
+    float newCal = cal.cal_v3 * (value / emon3.Vrms);
+    cal.cal_v3 = newCal;
+    configJson["calV3"] = newCal;
+    serializeJson(configJson, config);
+    fileRW.writeFile(SPIFFS, "/config.json", config);
+
+    emon3.voltage(PIN_V3, newCal, 1.7); // Voltage: input pin, calibration, phase_shift
+    Serial.println(newCal);
+  } else if (id == I1) {
+    float newCal = cal.cal_i1 * (value / emon1.Irms);
+    cal.cal_i1 = newCal;
+    configJson["calI1"] = newCal;
+    serializeJson(configJson, config);
+    fileRW.writeFile(SPIFFS, "/config.json", config);
+
+    emon1.current(PIN_CT1, newCal);
+    Serial.println(newCal);
+  } else if (id == I2) {
+    float newCal = cal.cal_i2 * (value / emon2.Irms);
+    cal.cal_i2 = newCal;
+    configJson["calI2"] = newCal;
+    serializeJson(configJson, config);
+    fileRW.writeFile(SPIFFS, "/config.json", config);
+
+    emon2.current(PIN_CT2, newCal);
+    Serial.println(newCal);
+  } else if (id == I3) {
+    float newCal = cal.cal_i3 * (value / emon3.Irms);
+    cal.cal_i3 = newCal;
+    configJson["calI3"] = newCal;
+    serializeJson(configJson, config);
+    fileRW.writeFile(SPIFFS, "/config.json", config);
+
+    emon3.current(PIN_CT3, newCal);
+    Serial.println(newCal);
+  }
 }

@@ -326,7 +326,7 @@ void lcd_show(int page) {
       lcd.print(ip);
       lcd.setCursor((20 - addr.length()) / 2, 3);
       lcd.print(addr);
-      if (iot_isConnected) {
+      if (iot_isConnected()) {
         temp = "IoT Connected";
       } else
         temp = "IoT not Connected";

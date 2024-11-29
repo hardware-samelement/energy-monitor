@@ -1,6 +1,8 @@
 #include "iot_service.h"
+#include "EnergyMonitor_global.h"
 #include "WiFiType.h"
 #include "esp32-hal-gpio.h"
+
 M1128 iot;
 HardwareSerial *SerialDEBUG = &Serial;
 String addr;
@@ -22,9 +24,10 @@ void iot_init() {
   iot.wifiConfig(WIFI_DEFAULT_SSID, WIFI_DEFAULT_PASS);
 
   iot.onConnect = callbackOnConnect;
+  iot.onReceive = callbackOnReceive;
   iot.onReconnect = callbackOnReconnect;
   iot.onAPConfigTimeout = callbackOnAPConfigTimeout;
-  // iot.onWiFiConnectTimeout = callbackOnWiFiConnectTimeout;
+  iot.onWiFiConnectTimeout = callbackOnWiFiConnectTimeout;
   iot.init(DEBUG ? SerialDEBUG : NULL);
 
   vTaskDelay(10);
@@ -32,13 +35,13 @@ void iot_init() {
 
 void callbackOnConnect() {
   initPublish();
-  // initSubscribe();
+  initSubscribe();
   iot.mqtt->publish(iot.constructTopic("$state"), "ready", true);
 }
 
 void callbackOnReconnect() {
   Serial.println("Reconnected to server.");
-  // initSubscribe();
+  initSubscribe();
 }
 
 void callbackOnAPConfigTimeout() {
@@ -68,7 +71,7 @@ void initPublish() {
     iot.mqtt->publish(iot.constructTopic("$fw/version"), "1.00", false);
     iot.mqtt->publish(iot.constructTopic("$reset"), "true", false);
     iot.mqtt->publish(iot.constructTopic("$restart"), "true", false);
-    iot.mqtt->publish(iot.constructTopic("$nodes"), "sensor[]", false);
+    iot.mqtt->publish(iot.constructTopic("$nodes"), "sensor[],calibration", false);
 
     // define node "sensor"
     iot.mqtt->publish(iot.constructTopic("sensor/$name"), "sensor", false);
@@ -216,6 +219,110 @@ void initPublish() {
     iot.mqtt->publish(iot.constructTopic("sensor_3/data/$settable"), "false", false);
     iot.mqtt->publish(iot.constructTopic("sensor_3/data/$retained"), "true", false);
     iot.mqtt->publish(iot.constructTopic("sensor_3/data/$datatype"), "string", false);
+
+    // calibration
+    iot.mqtt->publish(iot.constructTopic("calibration/$name"), "calibration", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/$type"), "calibration", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/$isconfig"), "true", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v1/$datatype"), "float", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/$properties"), "v1,v2,v3,i1,i2,i3", false);
+
+    iot.mqtt->publish(iot.constructTopic("calibration/v1/$name"), "Voltage Calibration: CH 1", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v1/$settable"), "true", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v1/$retained"), "false", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v1/$datatype"), "float", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v1/$format"), "0:500", false);
+
+    iot.mqtt->publish(iot.constructTopic("calibration/v2/$name"), "Voltage Calibration: CH 2", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v2/$settable"), "true", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v2/$retained"), "false", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v2/$datatype"), "float", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v2/$format"), "0:500", false);
+
+    iot.mqtt->publish(iot.constructTopic("calibration/v3/$name"), "Voltage Calibration: CH 3", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v3/$settable"), "true", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v3/$retained"), "false", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v3/$datatype"), "float", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/v3/$format"), "0:500", false);
+
+    iot.mqtt->publish(iot.constructTopic("calibration/i1/$name"), "Current Calibration: CH 1", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i1/$settable"), "true", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i1/$retained"), "false", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i1/$datatype"), "float", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i1/$format"), "0:100", false);
+
+    iot.mqtt->publish(iot.constructTopic("calibration/i2/$name"), "Current Calibration: CH 2", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i2/$settable"), "true", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i2/$retained"), "false", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i2/$datatype"), "float", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i2/$format"), "0:100", false);
+
+    iot.mqtt->publish(iot.constructTopic("calibration/i3/$name"), "Current Calibration: CH 3", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i3/$settable"), "true", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i3/$retained"), "false", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i3/$datatype"), "float", false);
+    iot.mqtt->publish(iot.constructTopic("calibration/i3/$format"), "0:100", false);
+  }
+}
+
+void initSubscribe() {
+  if (iot.mqtt->connected()) {
+    Serial.println("init subscribe, mqtt connected");
+    iot.mqtt->subscribe(iot.constructTopic("reset"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("restart"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/v1"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/v1/set"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/v2"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/v2/set"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/v3"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/v3/set"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/i1"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/i1/set"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/i2"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/i2/set"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/i3"), 1);
+    iot.mqtt->subscribe(iot.constructTopic("calibration/i3/set"), 1);
+  }
+}
+
+void callbackOnReceive(char *topic, byte *payload, unsigned int length) {
+  String strPayload;
+  strPayload.reserve(length);
+  for (uint32_t i = 0; i < length; i++)
+    strPayload += (char)payload[i];
+
+  SerialDEBUG->print(F("Receiving topic from: "));
+  SerialDEBUG->print(topic);
+  SerialDEBUG->print(F("    ; With value: "));
+  SerialDEBUG->println(strPayload);
+
+  float payload_data = strPayload.toFloat();
+
+  if (strPayload) {
+    if (strcmp(topic, iot.constructTopic("calibration/v1/set")) == 0 && payload_data != 0) {
+      calibration(V1, payload_data);
+      iot.mqtt->publish(iot.constructTopic("calibration/v1/set"), "0", true);
+
+    } else if (strcmp(topic, iot.constructTopic("calibration/v2/set")) == 0 && payload_data != 0) {
+      calibration(V2, payload_data);
+      iot.mqtt->publish(iot.constructTopic("calibration/v2/set"), "0", true);
+
+    } else if (strcmp(topic, iot.constructTopic("calibration/v3/set")) == 0 && payload_data != 0) {
+      calibration(V3, payload_data);
+      iot.mqtt->publish(iot.constructTopic("calibration/v3/set"), "0", true);
+
+    } else if (strcmp(topic, iot.constructTopic("calibration/i1/set")) == 0 && payload_data != 0) {
+      calibration(I1, payload_data);
+      iot.mqtt->publish(iot.constructTopic("calibration/i1/set"), "0", true);
+
+    } else if (strcmp(topic, iot.constructTopic("calibration/i2/set")) == 0 && payload_data != 0) {
+      calibration(I2, payload_data);
+      iot.mqtt->publish(iot.constructTopic("calibration/i2/set"), "0", true);
+
+    } else if (strcmp(topic, iot.constructTopic("calibration/i3/set")) == 0 && payload_data != 0) {
+      calibration(I3, payload_data);
+      iot.mqtt->publish(iot.constructTopic("calibration/i3/set"), "0", true);
+    }
   }
 }
 

@@ -26,10 +26,12 @@
 
 void iot_init(void);
 void callbackOnConnect();
+void callbackOnReceive(char *topic, byte *payload, unsigned int length);
 void callbackOnReconnect();
 void callbackOnAPConfigTimeout();
 void callbackOnWiFiConnectTimeout();
 void initPublish();
+void initSubscribe();
 void iot_loop();
 void iot_publish(const char *topic, const char *payload, bool retained = true);
 void iot_reset();
