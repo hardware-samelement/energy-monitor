@@ -1,0 +1,5 @@
+Change Component Designator: OldDesignator=SB? NewDesignator=SB1
+Change Component Designator: OldDesignator=SB? NewDesignator=SB2
+Change Component Designator: OldDesignator=SB? NewDesignator=SB3
+Added Member To Class: ClassName=Energy_Monitor Member=Component SB1 solder Bridge
+Added Member To Class: ClassName=Energy_Monitor Member=Component SB2 solder Bridge

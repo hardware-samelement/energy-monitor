@@ -1,0 +1,3 @@
+Added Pin To Net: NetName=V1-N Pin=D?-C
+Added Member To Class: ClassName=Energy_Monitor Member=Component D? 1N4007
+Added Member To Class: ClassName=Energy_Monitor Member=Component D? LED 0805

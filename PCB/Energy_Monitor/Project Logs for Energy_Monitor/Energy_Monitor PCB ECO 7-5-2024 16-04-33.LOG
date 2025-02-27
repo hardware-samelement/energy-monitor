@@ -1,0 +1,11 @@
+Removed Pin From Net: NetName=CT1-S2 Pin=C3-1
+Removed Pin From Net: NetName=CT1-S2 Pin=R8-1
+Removed Pin From Net: NetName=CT1-S2 Pin=R10-1
+Removed Pin From Net: NetName=CT1-S2 Pin=T1-4
+Added Pin To Net: NetName=GND Pin=C3-1
+Added Pin To Net: NetName=GND Pin=R8-1
+Added Pin To Net: NetName=GND Pin=R10-1
+Added Pin To Net: NetName=GND Pin=T1-4
+Added Member To Class: ClassName=Energy_Monitor Member=Component C12 Cap
+Added Member To Class: ClassName=Energy_Monitor Member=Component R5 Res1
+Added Member To Class: ClassName=Energy_Monitor Member=Component T1 ZMPT101B

@@ -1,0 +1,20 @@
+Change Component Comment : Designator=R? Old Comment=R500 New Comment=R 500
+Change Component Comment : Designator=R? Old Comment=R500 New Comment=R 500
+Change Component Comment : Designator=R? Old Comment=R500 New Comment=R 500
+Change Component Designator: OldDesignator=D? NewDesignator=D7
+Change Component Designator: OldDesignator=D? NewDesignator=D8
+Change Component Designator: OldDesignator=D? NewDesignator=D9
+Change Component Designator: OldDesignator=R? NewDesignator=R38
+Change Component Designator: OldDesignator=R? NewDesignator=R39
+Change Component Designator: OldDesignator=R? NewDesignator=R40
+Change Net Name : Old Net Name=NetD?_A New Net Name=NetD7_A
+Added Pin To Net: NetName=NetD8_A Pin=D8-A
+Added Pin To Net: NetName=NetD8_A Pin=R39-2
+Added Net: Name=NetD8_A
+Added Pin To Net: NetName=NetD9_A Pin=D9-A
+Added Pin To Net: NetName=NetD9_A Pin=R40-2
+Added Net: Name=NetD9_A
+Added Member To Class: ClassName=Energy_Monitor Member=Component D7 LED 0805
+Added Member To Class: ClassName=Energy_Monitor Member=Component D8 LED 0805
+Added Member To Class: ClassName=Energy_Monitor Member=Component R39 R 500
+Added Member To Class: ClassName=Energy_Monitor Member=Component R40 R 500

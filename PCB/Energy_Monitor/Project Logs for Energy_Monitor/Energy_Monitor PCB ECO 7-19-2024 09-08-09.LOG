@@ -1,0 +1,8 @@
+Added Pin To Net: NetName=GND Pin=J1-15
+Added Pin To Net: NetName=LED1 Pin=J1-10
+Added Net: Name=LED1
+Added Pin To Net: NetName=LED2 Pin=J1-11
+Added Net: Name=LED2
+Added Pin To Net: NetName=LED3 Pin=J1-12
+Added Net: Name=LED3
+Added Member To Class: ClassName=Energy_Monitor Member=Component T1 ZMPT101B

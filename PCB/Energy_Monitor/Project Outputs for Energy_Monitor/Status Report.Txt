@@ -1,0 +1,12 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : Project [Energy_Monitor.PrjPcb]
+   Generated File[Energy_Monitor.TXT]
+   Generated File[Energy_Monitor.LDP]
+   Generated File[Energy_Monitor.DRR]
+
+
+Files Generated   : 3
+Documents Printed : 0
+
+Finished Output Generation At 16:00:34 On 9/19/2024

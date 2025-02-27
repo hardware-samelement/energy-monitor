@@ -1,0 +1,76 @@
+Removed Pin From Net: NetName=AGND Pin=R9-1
+Removed Pin From Net: NetName=AGND Pin=R20-1
+Removed Pin From Net: NetName=AGND Pin=R29-1
+Change Component Comment : Designator=SW1 Old Comment=1825027-5 New Comment=Tactile Switch Right Angle
+Change Component Comment : Designator=SW2 Old Comment=1825027-5 New Comment=Tactile Switch Right Angle
+Change Component Comment : Designator=C3 Old Comment=Cap New Comment=C 100n
+Change Component Comment : Designator=C4 Old Comment=Cap New Comment=C 100n
+Change Component Comment : Designator=C7 Old Comment=Cap New Comment=C 100n
+Change Component Comment : Designator=C8 Old Comment=Cap New Comment=C 100n
+Change Component Comment : Designator=C11 Old Comment=Cap New Comment=C 100n
+Change Component Comment : Designator=C12 Old Comment=Cap New Comment=C 100n
+Change Component Comment : Designator=C14 Old Comment=Cap New Comment=C 100n
+Change Component Comment : Designator=C15 Old Comment=Cap New Comment=C 100n
+Change Component Comment : Designator=C1 Old Comment=Cap Pol1 New Comment=C Tantalum 10u
+Change Component Comment : Designator=C2 Old Comment=Cap Pol1 New Comment=C Tantalum 10u
+Change Component Comment : Designator=C5 Old Comment=Cap Pol1 New Comment=C Tantalum 10u
+Change Component Comment : Designator=C6 Old Comment=Cap Pol1 New Comment=C Tantalum 10u
+Change Component Comment : Designator=C9 Old Comment=Cap Pol1 New Comment=C Tantalum 10u
+Change Component Comment : Designator=C10 Old Comment=Cap Pol1 New Comment=C Tantalum 10u
+Change Component Comment : Designator=C13 Old Comment=Cap Pol1 New Comment=C Tantalum 10u
+Change Component Comment : Designator=R34 Old Comment=Res1 New Comment=R 0
+Change Component Comment : Designator=R14 Old Comment=Res1 New Comment=R 4K7
+Change Component Comment : Designator=R15 Old Comment=Res1 New Comment=R 4K7
+Change Component Comment : Designator=R3 Old Comment=Res1 New Comment=R 10K
+Change Component Comment : Designator=R4 Old Comment=Res1 New Comment=R 10K
+Change Component Comment : Designator=R5 Old Comment=Res1 New Comment=R 10K
+Change Component Comment : Designator=R6 Old Comment=Res1 New Comment=R 10K
+Change Component Comment : Designator=R13 Old Comment=Res1 New Comment=R 10K
+Change Component Comment : Designator=R26 Old Comment=Res1 New Comment=R 10K
+Change Component Comment : Designator=R27 Old Comment=Res1 New Comment=R 10K
+Change Component Comment : Designator=R32 Old Comment=Res1 New Comment=R 10K
+Change Component Comment : Designator=R33 Old Comment=Res1 New Comment=R 10K
+Change Component Comment : Designator=R9 Old Comment=Res1 New Comment=R 22
+Change Component Comment : Designator=R20 Old Comment=Res1 New Comment=R 22
+Change Component Comment : Designator=R29 Old Comment=Res1 New Comment=R 22
+Change Component Comment : Designator=R12 Old Comment=Res1 New Comment=R 120
+Change Component Comment : Designator=R1 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R2 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R10 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R11 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R16 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R17 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R18 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R21 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R22 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R23 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R24 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R25 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R30 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R31 Old Comment=Res1 New Comment=R 200K
+Change Component Comment : Designator=R8 Old Comment=Res1 New Comment=R 500
+Change Component Comment : Designator=R19 Old Comment=Res1 New Comment=R 500
+Change Component Comment : Designator=R28 Old Comment=Res1 New Comment=R 500
+Change Component Comment : Designator=J2 Old Comment=TBP01R1-508-19BE New Comment=Terminal Block Right angle 19Pin
+Change Component Description : Designator=J1 Old Description=RX TXRX MOD WIFI TRACE ANT SMD New Description=ESP32-WROOM-32E
+Added Component: Designator=SB?(Solder Bridge)
+Add component. Clean all parameters for all variants
+Added Component: Designator=SB?(Solder Bridge)
+Add component. Clean all parameters for all variants
+Added Component: Designator=SB?(Solder Bridge)
+Add component. Clean all parameters for all variants
+Added Pin To Net: NetName=AGND Pin=SB?-2
+Added Pin To Net: NetName=AGND Pin=SB?-2
+Added Pin To Net: NetName=AGND Pin=SB?-2
+Added Pin To Net: NetName=NetR9_1 Pin=R9-1
+Added Pin To Net: NetName=NetR9_1 Pin=SB?-1
+Added Net: Name=NetR9_1
+Added Pin To Net: NetName=NetR20_1 Pin=R20-1
+Added Pin To Net: NetName=NetR20_1 Pin=SB?-1
+Added Net: Name=NetR20_1
+Added Pin To Net: NetName=NetR29_1 Pin=R29-1
+Added Pin To Net: NetName=NetR29_1 Pin=SB?-1
+Added Net: Name=NetR29_1
+Added Member To Class: ClassName=Energy_Monitor Member=Component SB? solder Bridge
+Added Member To Class: ClassName=Energy_Monitor Member=Component SB? solder Bridge
+Added Member To Class: ClassName=Energy_Monitor Member=Component SB? solder Bridge

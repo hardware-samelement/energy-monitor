@@ -1,0 +1,62 @@
+{
+    "id" : "sensor",
+    "name" : "sensor",
+    "type" : "sensor-01",
+    "array" : "1-3",
+    "properties" : [
+        {
+            "id" : "voltage",
+            "name" : "Voltage",
+            "retained" : "true",
+            "settable" : "true",
+            "datatype" : "float",
+            "unit" : "V",
+            "format" : "100:500"
+        },
+        {
+            "id" : "current",
+            "name" : "Current",
+            "retained" : "true",
+            "settable" : "true",
+            "datatype" : "float",
+            "unit" : "A",
+            "format" : "0:10"
+        },
+        {
+            "id" : "real",
+            "name" : "Real Power",
+            "retained" : "true",
+            "settable" : "true",
+            "datatype" : "float",
+            "unit" : "W",
+            "format" : "0:10000"
+        },
+        {
+            "id" : "apparent",
+            "name" : "Apparent Power",
+            "retained" : "true",
+            "settable" : "true",
+            "datatype" : "float",
+            "unit" : "VA",
+            "format" : "0:10000"
+        },
+        {
+            "id" : "energy",
+            "name" : "Energy",
+            "retained" : "true",
+            "settable" : "true",
+            "datatype" : "float",
+            "unit" : "kWh",
+            "format" : "0:10000"
+        },
+        {
+            "id" : "pf",
+            "name" : "Power Factor",
+            "retained" : "true",
+            "settable" : "true",
+            "datatype" : "float",
+            "unit" : "Power Factor",
+            "format" : "-1:1"
+        }
+    ]
+}

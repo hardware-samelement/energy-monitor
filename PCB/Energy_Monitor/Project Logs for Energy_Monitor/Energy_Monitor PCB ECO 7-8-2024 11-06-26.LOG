@@ -1,0 +1,17 @@
+Added Pin To Net: NetName=RS485_E Pin=J?-1
+Added Pin To Net: NetName=DATA_B Pin=J?-2
+Added Pin To Net: NetName=DATA_A Pin=J?-3
+Added Pin To Net: NetName=DATA_B Pin=J?-4
+Added Pin To Net: NetName=DATA_A Pin=J?-5
+Added Pin To Net: NetName=AGND Pin=J?-7
+Added Pin To Net: NetName=CT3-S1 Pin=J?-8
+Added Pin To Net: NetName=AGND Pin=J?-9
+Added Pin To Net: NetName=CT2-S1 Pin=J?-10
+Added Pin To Net: NetName=AGND Pin=J?-11
+Added Pin To Net: NetName=CT1-S1 Pin=J?-12
+Added Pin To Net: NetName=V3-N Pin=J?-14
+Added Pin To Net: NetName=V3-L Pin=J?-15
+Added Pin To Net: NetName=V2-N Pin=J?-16
+Added Pin To Net: NetName=V2-L Pin=J?-17
+Added Pin To Net: NetName=V1-N Pin=J?-18
+Added Pin To Net: NetName=V1-L Pin=J?-19

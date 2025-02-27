@@ -1,0 +1,10 @@
+Added Component: Designator=J?(CUI_TBP01R1-508-18BE)
+Add component. Clean all parameters for all variants
+Add component (AddParameter): Name = "Availability"; Value = "Unavailable"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "MF"; Value = ""; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "MP"; Value = "TBP01R1-508-18BE"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Package"; Value = "None"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Price"; Value = "None"; VariantName = "[No Variations]"
+Add component (AddParameter): Name = "Value"; Value = ""; VariantName = "[No Variations]"
+Added Member To Class: ClassName=Energy_Monitor Member=Component J? TBP01R1-508-10BE
+Added Member To Class: ClassName=Energy_Monitor Member=Component J? TBP01R1-508-16BE

@@ -1,0 +1,7 @@
+Removed Pin From Net: NetName=GND Pin=R32-1
+Removed Pin From Net: NetName=ESP_EN Pin=R32-2
+Removed Pin From Net: NetName=GND Pin=R33-1
+Removed Pin From Net: NetName=ESP_BOOT Pin=R33-2
+Removed Member From Class: ClassName=Energy_Monitor Member=R32
+Removed Member From Class: ClassName=Energy_Monitor Member=R33
+Added Member To Class: ClassName=Energy_Monitor Member=Component PS1 HLK-10M05

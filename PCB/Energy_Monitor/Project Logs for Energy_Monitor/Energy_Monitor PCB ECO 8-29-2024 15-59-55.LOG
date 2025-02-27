@@ -1,0 +1,2 @@
+Removed Pin From Net: NetName=RS485_E Pin=J2-1
+Added Pin To Net: NetName=GND Pin=J2-1
